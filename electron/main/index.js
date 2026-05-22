@@ -35,8 +35,9 @@ const indexHtml = join(ROOT_PATH.dist, 'index.html')
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Escrcpy',
-    width: 1200,
-    height: 800,
+    // bumped up the default size a bit - fits my monitor better
+    width: 1280,
+    height: 860,
     minWidth: 900,
     minHeight: 600,
     icon: join(ROOT_PATH.public, 'favicon.ico'),
