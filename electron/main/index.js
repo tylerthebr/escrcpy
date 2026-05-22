@@ -40,6 +40,8 @@ async function createWindow() {
     height: 860,
     minWidth: 900,
     minHeight: 600,
+    // start maximized since I always end up doing it manually anyway
+    // win.maximize() is called below
     icon: join(ROOT_PATH.public, 'favicon.ico'),
     webPreferences: {
       preload,
@@ -49,6 +51,8 @@ async function createWindow() {
       contextIsolation: false,
     },
   })
+
+  win.maximize()
 
   if (app.isPackaged) {
     win.loadFile(indexHtml)
