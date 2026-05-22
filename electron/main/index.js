@@ -105,3 +105,8 @@ ipcMain.handle('open-external', async (_, url) => {
 ipcMain.handle('get-app-version', () => {
   return app.getVersion()
 })
+
+// handy for debugging - lets me check what platform I'm on from the renderer
+ipcMain.handle('get-platform', () => {
+  return process.platform
+})
