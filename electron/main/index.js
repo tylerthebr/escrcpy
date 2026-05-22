@@ -68,6 +68,9 @@ async function createWindow() {
     if (url.startsWith('https:') || url.startsWith('http:')) shell.openExternal(url)
     return { action: 'deny' }
   })
+
+  // hide the menu bar - I never use it and it just takes up space
+  win.setMenuBarVisibility(false)
 }
 
 app.whenReady().then(createWindow)
