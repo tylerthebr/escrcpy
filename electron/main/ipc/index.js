@@ -50,9 +50,13 @@ export function registerIpcHandlers(mainWindow) {
 
   // Execute a shell command and return stdout/stderr
   // NOTE: bumped timeout to 60s because some adb commands (especially over wifi) can be slow
+  // NOTE: also setting maxBuffer higher since some commands (like `adb logcat -d`) can dump a lot of output
   ipcMain.handle('exec-command', async (_event, command) => {
     try {
-      const { stdout, stderr } = await execAsync(command, { timeout: 60000 })
+      const { stdout, stderr } = await execAsync(command, {
+        timeout: 60000,
+        maxBuffer: 10 * 1024 * 1024, // 10 MB
+      })
       return { success: true, stdout, stderr }
     } catch (error) {
       return {
