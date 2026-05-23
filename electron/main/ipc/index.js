@@ -33,9 +33,10 @@ export function registerIpcHandlers(mainWindow) {
   })
 
   // Show native open-file dialog
+  // NOTE: added 'multiSelections' to properties so I can select multiple files at once
   ipcMain.handle('dialog-open-file', async (_event, options = {}) => {
     const result = await dialog.showOpenDialog(mainWindow, {
-      properties: ['openFile'],
+      properties: ['openFile', 'multiSelections'],
       ...options,
     })
     return result
