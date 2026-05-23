@@ -43,7 +43,9 @@ function parseDevices(output) {
       const id = parts[0].trim()
       const status = parts[1].trim()
       // Only include devices that are actually ready to use
-      if (status !== 'device' && status !== 'unauthorized') continue
+      // Note: I'm also allowing 'offline' status here so I can see when a device
+      // is detected but not responding - helpful for debugging connection issues
+      if (status !== 'device' && status !== 'unauthorized' && status !== 'offline') continue
       devices.push({
         id,
         status,
@@ -108,10 +110,8 @@ export function registerDeviceHandlers() {
     return new Promise((resolve, reject) => {
       exec(`"${adbPath}" disconnect ${deviceId}`, (error, stdout, stderr) => {
         if (error) {
-          reject(new Error(`Disconnect failed: ${stderr || error.message}`))
-          return
+          reject(new Error(`Di`)
         }
-        resolve({ success: true, message: stdout.trim() })
       })
     })
   })
