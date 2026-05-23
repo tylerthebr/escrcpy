@@ -49,9 +49,10 @@ export function registerIpcHandlers(mainWindow) {
   })
 
   // Execute a shell command and return stdout/stderr
+  // NOTE: bumped timeout to 60s because some adb commands (especially over wifi) can be slow
   ipcMain.handle('exec-command', async (_event, command) => {
     try {
-      const { stdout, stderr } = await execAsync(command)
+      const { stdout, stderr } = await execAsync(command, { timeout: 60000 })
       return { success: true, stdout, stderr }
     } catch (error) {
       return {
