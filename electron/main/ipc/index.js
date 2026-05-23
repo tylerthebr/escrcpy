@@ -1,0 +1,95 @@
+import { ipcMain, shell, clipboard, dialog } from 'electron'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import path from 'path'
+import fs from 'fs'
+
+const execAsync = promisify(exec)
+
+/**
+ * Register all IPC handlers for the main process.
+ * @param {Electron.BrowserWindow} mainWindow - The main application window
+ */
+export function registerIpcHandlers(mainWindow) {
+  // Open external URL in default browser
+  ipcMain.handle('open-url', async (_event, url) => {
+    try {
+      await shell.openExternal(url)
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Write text to clipboard
+  ipcMain.handle('clipboard-write', (_event, text) => {
+    clipboard.writeText(text)
+    return { success: true }
+  })
+
+  // Read text from clipboard
+  ipcMain.handle('clipboard-read', () => {
+    return { success: true, text: clipboard.readText() }
+  })
+
+  // Show native open-file dialog
+  ipcMain.handle('dialog-open-file', async (_event, options = {}) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openFile'],
+      ...options,
+    })
+    return result
+  })
+
+  // Show native save dialog
+  ipcMain.handle('dialog-save-file', async (_event, options = {}) => {
+    const result = await dialog.showSaveDialog(mainWindow, options)
+    return result
+  })
+
+  // Execute a shell command and return stdout/stderr
+  ipcMain.handle('exec-command', async (_event, command) => {
+    try {
+      const { stdout, stderr } = await execAsync(command)
+      return { success: true, stdout, stderr }
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        stdout: error.stdout || '',
+        stderr: error.stderr || '',
+      }
+    }
+  })
+
+  // Check if a file path exists
+  ipcMain.handle('path-exists', (_event, filePath) => {
+    return { exists: fs.existsSync(filePath) }
+  })
+
+  // Reveal a file or folder in the native file manager
+  ipcMain.handle('show-item-in-folder', (_event, filePath) => {
+    shell.showItemInFolder(path.normalize(filePath))
+    return { success: true }
+  })
+
+  // Minimize the main window
+  ipcMain.on('window-minimize', () => {
+    if (mainWindow) mainWindow.minimize()
+  })
+
+  // Maximize or restore the main window
+  ipcMain.on('window-maximize', () => {
+    if (!mainWindow) return
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow.maximize()
+    }
+  })
+
+  // Close the main window
+  ipcMain.on('window-close', () => {
+    if (mainWindow) mainWindow.close()
+  })
+}
