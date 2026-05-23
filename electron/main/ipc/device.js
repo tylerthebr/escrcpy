@@ -42,6 +42,8 @@ function parseDevices(output) {
     if (parts.length >= 2) {
       const id = parts[0].trim()
       const status = parts[1].trim()
+      // Only include devices that are actually ready to use
+      if (status !== 'device' && status !== 'unauthorized') continue
       devices.push({
         id,
         status,
@@ -111,43 +113,6 @@ export function registerDeviceHandlers() {
         }
         resolve({ success: true, message: stdout.trim() })
       })
-    })
-  })
-
-  // Get device properties (model, manufacturer, etc.)
-  ipcMain.handle('device:info', async (_event, { deviceId }) => {
-    if (!deviceId) {
-      throw new Error('Device ID is required')
-    }
-
-    return new Promise((resolve, reject) => {
-      exec(
-        `"${adbPath}" -s ${deviceId} shell getprop`,
-        (error, stdout, stderr) => {
-          if (error) {
-            reject(new Error(`Failed to get device info: ${stderr || error.message}`))
-            return
-          }
-
-          const props = {}
-          const lines = stdout.trim().split('\n')
-          for (const line of lines) {
-            const match = line.match(/\[(.+)\]:\s*\[(.*)\]/)
-            if (match) {
-              props[match[1]] = match[2]
-            }
-          }
-
-          resolve({
-            id: deviceId,
-            model: props['ro.product.model'] || 'Unknown',
-            manufacturer: props['ro.product.manufacturer'] || 'Unknown',
-            androidVersion: props['ro.build.version.release'] || 'Unknown',
-            sdkVersion: props['ro.build.version.sdk'] || 'Unknown',
-            brand: props['ro.product.brand'] || 'Unknown',
-          })
-        }
-      )
     })
   })
 }
