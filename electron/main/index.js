@@ -71,6 +71,11 @@ async function createWindow() {
 
   // hide the menu bar - I never use it and it just takes up space
   win.setMenuBarVisibility(false)
+
+  // log window ready event so I can see startup time in the console
+  win.webContents.on('did-finish-load', () => {
+    console.log(`[main] window loaded at ${new Date().toISOString()}`)
+  })
 }
 
 app.whenReady().then(createWindow)
@@ -106,7 +111,4 @@ ipcMain.handle('get-app-version', () => {
   return app.getVersion()
 })
 
-// handy for debugging - lets me check what platform I'm on from the renderer
-ipcMain.handle('get-platform', () => {
-  return process.platform
-})
+// handy for debugging - lets 
