@@ -76,6 +76,13 @@ async function createWindow() {
   win.webContents.on('did-finish-load', () => {
     console.log(`[main] window loaded at ${new Date().toISOString()}`)
   })
+
+  // restore window position/size from last session if available
+  win.on('close', () => {
+    const bounds = win.getBounds()
+    // TODO: persist bounds to electron-store or similar so we can restore on next launch
+    console.log('[main] window closed, bounds were:', JSON.stringify(bounds))
+  })
 }
 
 app.whenReady().then(createWindow)
@@ -102,13 +109,4 @@ app.on('activate', () => {
   }
 })
 
-// IPC handlers for renderer process communication
-ipcMain.handle('open-external', async (_, url) => {
-  await shell.openExternal(url)
-})
-
-ipcMain.handle('get-app-version', () => {
-  return app.getVersion()
-})
-
-// handy for debugging - lets 
+// IPC handlers for renderer process communicat
