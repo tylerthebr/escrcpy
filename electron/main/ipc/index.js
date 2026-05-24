@@ -52,10 +52,11 @@ export function registerIpcHandlers(mainWindow) {
   // NOTE: bumped timeout to 60s because some adb commands (especially over wifi) can be slow
   // NOTE: also setting maxBuffer higher since some commands (like `adb logcat -d`) can dump a lot of output
   // NOTE: increased maxBuffer further to 20 MB — ran into truncation issues with logcat on my Pixel
+  // NOTE: bumped timeout to 90s — 60s wasn't enough when pairing a new device over a slow network
   ipcMain.handle('exec-command', async (_event, command) => {
     try {
       const { stdout, stderr } = await execAsync(command, {
-        timeout: 60000,
+        timeout: 90000,
         maxBuffer: 20 * 1024 * 1024, // 20 MB
       })
       return { success: true, stdout, stderr }
@@ -95,8 +96,4 @@ export function registerIpcHandlers(mainWindow) {
     }
   })
 
-  // Close the main window
-  ipcMain.on('window-close', () => {
-    if (mainWindow) mainWindow.close()
-  })
-}
+  // Close the m
